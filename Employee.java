@@ -6,20 +6,24 @@ public abstract class Employee{
     protected int age;
     protected String gender;
     protected String mobileNo;
-    protected String post;
-    protected String address;
-    protected int salary;
-    protected int mpf;
+    protected String major;
+    protected String schoolCode;
+    protected double hSalary;
+    protected int workHour;
+    protected double salary;
+    protected double bonus;
+    protected double totalSalary;
+    protected String month;
     
     
-    public Employee(String staffID, String name, int age, String gender, String mobileNo, String post, String address, int salary, int mpf ) {
+    public Employee(String staffID, String name, int age, String gender, String mobileNo, String major, String schoolCode, int salary, int mpf ) {
         this.staffID = staffID;
         this.name    = name;
         this.age     = age;
         this.gender  = gender;
         this.mobileNo = mobileNo;
-        this.post     = post;
-        this.address  = address;
+        this.major     = major;
+        this.schoolCode  = schoolCode;
         this.mpf      = mpf;
         setSalary(salary);
     }
@@ -29,7 +33,7 @@ public abstract class Employee{
     public String getGender() {return gender;}
     public int getAge() {return age;}
     public String getMobileNo() {return mobileNo;}
-    public String getPost() {return post;}
+    public String getMajor() {return major;}
     public String getAddress() {return address;}
     public int getSalary() {return salary;}
     public int getMPF() {return mpf;}
