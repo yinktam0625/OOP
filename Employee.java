@@ -1,4 +1,4 @@
-public abstract class Employee{
+public class Employee{
     protected String staffID;
     protected String name;
     protected String schoolCode;
@@ -28,6 +28,10 @@ public abstract class Employee{
     public double getSalary() {return salary;}
     public double getTotalSalary() { return totalSalary; }
     public String getMonth() { return month; }
+    
+    public String toString() { 
+        return getStaffID();
+    }
     
     
 }

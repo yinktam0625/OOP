@@ -2,36 +2,48 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
+import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 public final class UI extends JFrame {
-    public static final int width = 1000;
-    public static final int height = 500;
-    public static final ImageIcon img = new ImageIcon("icon.png");
-    private ArrayList<Employee> employee = new ArrayList<>();
+    //The employee objects with subclass stored by an array list
+    private final ArrayList<Employee> employee = new ArrayList<>();
     
+    //Constructor for constructing the user interface objects
     public UI() {
-        setSize(width, height);
-        setTitle("INT2014 Assignment"); 
-        setIconImage(img.getImage());
+        //Initiating the frame
+        setSize(1000, 500);
+        setTitle("INT2014 Assignment");
+        
+        setIconImage(new ImageIcon(getClass().getResource("icon.png")).getImage());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         add(new JLabel("HR System of After-School Tutorial Class", JLabel.CENTER));
         
-        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
         
+        //A panel storing the two main contents panel
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
         JPanel rPanel = new JPanel();
         
         DefaultTableModel model = new DefaultTableModel();
-        JTable table = new JTable();
+        JTable table = new JTable(){
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        
         rPanel = createRightPanel(rPanel, model, table);
         
         JPanel lPanel = new JPanel(new GridLayout(12, 2));
         lPanel = createLeftPanel(lPanel, model, table);
         
         
-        
+        //Add the contents panel into the main frame
         contentPanel.add(lPanel);
         contentPanel.add(rPanel);
         
@@ -59,7 +71,9 @@ public final class UI extends JFrame {
         
     }
     
-    public JPanel createLeftPanel(JPanel panel, DefaultTableModel model, JTable table) {
+    //Method for creating the left panel
+    private JPanel createLeftPanel(JPanel panel, DefaultTableModel model, JTable table) {
+        //
         JLabel labels[] = new JLabel[10];
         String [] labelNames = {"Staff ID", "Name", "Assigned School Code", "Hourly Salary", 
                             "Working Hour", "Salary", "Bonus", "MPF", "Total Salary", "Month"};
@@ -96,6 +110,7 @@ public final class UI extends JFrame {
             }
         }
    
+        //Assign specific focus listener to the staff id, mpf and bonus textfields
         textfields[0].addFocusListener(new staffIDFocusListener(labels[0], textfields[0], textfields[6], textfields[7], textfields[5], textfields[8], panel));
         textfields[3].addFocusListener(new salaryFocusListener(labels[3], textfields[3], labels[4], textfields[4], textfields[5], textfields[6], textfields[7], textfields[8], panel, textfields[0]));
         textfields[4].addFocusListener(new salaryFocusListener(labels[4], textfields[4], labels[3], textfields[3], textfields[5], textfields[6], textfields[7], textfields[8], panel, textfields[0]));
@@ -115,50 +130,196 @@ public final class UI extends JFrame {
         for (int i = 0; i < buttonNames.length; i++) {
             buttons[i] = new JButton(buttonNames[i]);
             
-            if (i == 0) {
-                buttons[i].addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (checkInput(textfields, monthComboBox)) {
-                            char type = textfields[0].getText().toUpperCase().charAt(0);
-                            switch (type) {
-                                 case 'C':
-                                        employee.add(new Coordinator(textfields[0].getText(), textfields[1].getText(), textfields[2].getText(), 
-                                           Double.parseDouble(textfields[3].getText()), Integer.parseInt(textfields[4].getText()), Double.parseDouble(textfields[5].getText()), 
-                                            Double.parseDouble(textfields[8].getText()), String.valueOf(monthComboBox.getSelectedItem()),
-                                            Double.parseDouble(textfields[7].getText())));
-                                            JOptionPane.showMessageDialog(panel, "Added Coordinator");
-                                            showEmployeeInfo(employee, model);
-                                            clearInput(textfields, monthComboBox);
-                                        break;
-                                    case 'T':
-                                        employee.add(new Tutor(textfields[0].getText(), textfields[1].getText(), textfields[2].getText(), 
-                                           Double.parseDouble(textfields[3].getText()), Integer.parseInt(textfields[4].getText()), Double.parseDouble(textfields[5].getText()), 
-                                            Double.parseDouble(textfields[8].getText()), String.valueOf(monthComboBox.getSelectedItem()),
-                                            Double.parseDouble(textfields[6].getText())));
-                                            JOptionPane.showMessageDialog(panel, "Added Teacher");
-                                            showEmployeeInfo(employee, model);
-                                            clearInput(textfields, monthComboBox);
-                                        break;
-                                    default:
-                                        JOptionPane.showMessageDialog(panel, "Please input correct staff ID");
-                                        textfields[0].requestFocus();
+            
+            switch (i) {
+                case 0:
+                    buttons[i].addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            if (checkInput(textfields, monthComboBox)) {
+                                char type = textfields[0].getText().toUpperCase().charAt(0);
+                                switch (type) {
+                                     case 'C':
+                                            employee.add(new Coordinator(textfields[0].getText(), textfields[1].getText(), textfields[2].getText(), 
+                                               Double.parseDouble(textfields[3].getText()), Integer.parseInt(textfields[4].getText()), Double.parseDouble(textfields[5].getText()), 
+                                                Double.parseDouble(textfields[8].getText()), String.valueOf(monthComboBox.getSelectedItem()),
+                                                Double.parseDouble(textfields[7].getText())));
+                                                JOptionPane.showMessageDialog(panel, "Added Coordinator");
+                                                showEmployeeInfo(employee, model);
+                                                clearInput(textfields, monthComboBox);
+                                            break;
+                                        case 'T':
+                                            employee.add(new Tutor(textfields[0].getText(), textfields[1].getText(), textfields[2].getText(), 
+                                               Double.parseDouble(textfields[3].getText()), Integer.parseInt(textfields[4].getText()), Double.parseDouble(textfields[5].getText()), 
+                                                Double.parseDouble(textfields[8].getText()), String.valueOf(monthComboBox.getSelectedItem()),
+                                                Double.parseDouble(textfields[6].getText())));
+                                                JOptionPane.showMessageDialog(panel, "Added Teacher");
+                                                showEmployeeInfo(employee, model);
+                                                clearInput(textfields, monthComboBox);
+                                            break;
+                                        default:
+                                            JOptionPane.showMessageDialog(panel, "Please input correct staff ID");
+                                            textfields[0].requestFocus();
+                                    }
+                            } else {
+                                JOptionPane.showMessageDialog(panel, "Please complete the form");
+                            }
+                        }
+                    });
+                    break;
+                case 1:
+                    buttons[i].addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            int i = table.getSelectedRow();
+                            if(i >= 0){
+                                model.removeRow(i);
+                                employee.remove(i);
+                            } else{
+                                JOptionPane.showMessageDialog(panel, "No data is selected");
+                            }
+                        }
+                    });
+                    break;
+                case 2:
+                    buttons[i].addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            if (employee.size() > 0) {
+                                final JFileChooser fileDialog = new JFileChooser();
+                                FileNameExtensionFilter filter = new FileNameExtensionFilter(".dat files", "dat");
+                                fileDialog.setFileFilter(filter);
+                                
+                                int rVal = fileDialog.showSaveDialog(panel);
+                                
+                                if (rVal == JFileChooser.APPROVE_OPTION) {
+                                    String filename = fileDialog.getCurrentDirectory().toString() + "\\" + fileDialog.getSelectedFile().getName() + ".dat";
+                                    System.out.println(filename);
+                                    
+                                    try {
+                                        String nl = System.getProperty("line.separator");
+                                        try (DataOutputStream output = new DataOutputStream(new FileOutputStream(filename))) {
+                                            for (int i = 0; i < employee.size(); i++) {
+                                                char type  = employee.get(i).getStaffID().toUpperCase().charAt(0);
+                                                switch (type) {
+                                                    case 'T':
+                                                        Tutor tutor = (Tutor) employee.get(i);
+                                                        
+                                                        output.writeBytes(tutor.getStaffID());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(tutor.getName());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(tutor.getSchoolCode());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(tutor.gethSalary()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Integer.toString(tutor.getWorkHour()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(tutor.getSalary()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(tutor.getTotalSalary()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(tutor.getMonth());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(tutor.getBonus()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(nl);
+                                                        break;
+                                                        
+                                                    case 'C':
+                                                        
+                                                        Coordinator coordinator = (Coordinator) employee.get(i);
+                                                        
+                                                        output.writeBytes(coordinator.getStaffID());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(coordinator.getName());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(coordinator.getSchoolCode());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(coordinator.gethSalary()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Integer.toString(coordinator.getWorkHour()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(coordinator.getSalary()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(coordinator.getTotalSalary()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(coordinator.getMonth());
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(Double.toString(coordinator.getMPF()));
+                                                        output.writeBytes(";");
+                                                        output.writeBytes(nl);
+                                                        break;
+                                                        
+                                                    default:
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    } catch (FileNotFoundException ex) {
+                                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                                        JOptionPane.showMessageDialog(panel, ex, "Error", JOptionPane.ERROR_MESSAGE);
+                                    } catch (IOException ex) {
+                                        JOptionPane.showMessageDialog(panel, ex, "Error", JOptionPane.ERROR_MESSAGE);
+                                    }
                                 }
-                        } else {
-                            JOptionPane.showMessageDialog(panel, "Please complete the form");
+                            } else {
+                                JOptionPane.showMessageDialog(panel, "No data");
+                            }
                         }
-                    }
-                });
-            } else if (i == 1) {
-                buttons[i].addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        int i = table.getSelectedRow();
-                        if(i >= 0){
-                            model.removeRow(i);
-                        } else{
-                            System.out.println("Delete Error");
+                    });
+                    break;
+                case 3:
+                    buttons[i].addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            final JFileChooser fileDialog = new JFileChooser();
+                            FileNameExtensionFilter filter = new FileNameExtensionFilter(".dat files", "dat");
+                            fileDialog.setFileFilter(filter);
+                            
+                            int returnVal = fileDialog.showOpenDialog(panel);
+                            
+                            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                                File file = fileDialog.getSelectedFile();
+                                
+                                model.setRowCount(0);//Clear Table
+                                employee.clear(); //Clear all records within the employee object
+                                
+                                BufferedReader reader;
+                                try {
+                                    reader = new BufferedReader(new FileReader(file));
+                                    String line = reader.readLine();
+                                    while (line != null) {
+                                        String [] parts = line.split(";");
+                                        char type  = parts[0].toUpperCase().charAt(0);
+                                        
+                                        switch (type) {
+                                            case 'T':
+                                                employee.add(new Tutor(parts[0], parts[1], parts[2], 
+                                                Double.parseDouble(parts[3]), Integer.parseInt(parts[4]), Double.parseDouble(parts[5]), 
+                                                Double.parseDouble(parts[6]), parts[7],
+                                                Double.parseDouble(parts[8])));
+                                                showEmployeeInfo(employee, model);
+                                                break;
+                                            case 'C':
+                                                employee.add(new Coordinator(parts[0], parts[1], parts[2], 
+                                                Double.parseDouble(parts[3]), Integer.parseInt(parts[4]), Double.parseDouble(parts[5]), 
+                                                Double.parseDouble(parts[6]), parts[7],
+                                                Double.parseDouble(parts[8])));
+                                                showEmployeeInfo(employee, model);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        
+                                        line = reader.readLine();
+                                    }
+                                    
+                                } catch (FileNotFoundException ex) {
+                                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
                         }
-                    }
-                });
+                    });
+                break;
             }
             
             panel.add(buttons[i]);
@@ -167,7 +328,7 @@ public final class UI extends JFrame {
     }
     
     class textFieldFocusListener implements FocusListener {
-        private JLabel label;
+        private final JLabel label;
         
         public textFieldFocusListener(JLabel label) {
             this.label = label;
@@ -181,13 +342,13 @@ public final class UI extends JFrame {
     }
     
     class staffIDFocusListener implements FocusListener {
-        private JLabel staffIDLabel;
-        private JTextField staffIDTextField;
-        private JTextField bonusTextField;
-        private JTextField mpfTextField;
-        private JTextField salaryTextField;
-        private JTextField totalSalaryTextField;
-        private JPanel panel;
+        private final JLabel staffIDLabel;
+        private final JTextField staffIDTextField;
+        private final JTextField bonusTextField;
+        private final JTextField mpfTextField;
+        private final JTextField salaryTextField;
+        private final JTextField totalSalaryTextField;
+        private final JPanel panel;
         
         
         public staffIDFocusListener(JLabel staffIDLabel, JTextField staffIDTextField, JTextField bonusTextField, JTextField mpfTextField, JTextField salaryTextField, JTextField totalSalaryTextField, JPanel panel) {
@@ -239,16 +400,16 @@ public final class UI extends JFrame {
     }
     
     class salaryFocusListener implements FocusListener {
-        private JLabel currentLabel;
-        private JTextField currentTextField;
-        private JLabel otherLabel;
-        private JTextField otherTextField;
-        private JTextField salaryTextField;
-        private JTextField bonusTextField;
-        private JTextField mpfTextField;
-        private JTextField totalSalaryTextField;
-        private JTextField staffIDTextField;
-        private JPanel panel;
+        private final JLabel currentLabel;
+        private final JTextField currentTextField;
+        private final JLabel otherLabel;
+        private final JTextField otherTextField;
+        private final JTextField salaryTextField;
+        private final JTextField bonusTextField;
+        private final JTextField mpfTextField;
+        private final JTextField totalSalaryTextField;
+        private final JTextField staffIDTextField;
+        private final JPanel panel;
         
         public salaryFocusListener(JLabel currentLabel, JTextField currentTextField, JLabel otherLabel, JTextField otherTextField, JTextField salaryTextField, JTextField bonusTextField, JTextField mpfTextField, JTextField totalSalaryTextField, JPanel panel, JTextField staffIDTextField) {
             this.currentLabel = currentLabel;
@@ -308,7 +469,7 @@ public final class UI extends JFrame {
                                 Integer.parseInt(currentTextField.getText());
                             }
                              mpfTextField.setText("0");
-                        } catch (Exception ex) {
+                        } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(panel, "Please input number", ex.getMessage(), JOptionPane.ERROR_MESSAGE);
                             currentTextField.requestFocus();
                         }
@@ -344,7 +505,7 @@ public final class UI extends JFrame {
                                 Integer.parseInt(currentTextField.getText());
                             }
                              bonusTextField.setText("0");
-                        } catch (Exception ex) {
+                        } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(panel, "Please input number", ex.getMessage(), JOptionPane.ERROR_MESSAGE);
                             currentTextField.requestFocus();
                         }
@@ -357,8 +518,9 @@ public final class UI extends JFrame {
             currentLabel.setForeground(Color.black);
         }
     }
-
-    public JPanel createRightPanel(JPanel panel, DefaultTableModel model, JTable table) {
+    
+    //Method for creating the right panel
+    private JPanel createRightPanel(JPanel panel, DefaultTableModel model, JTable table) {
         
         /*GridBagConstraints gbc = new GridBagConstraints();
         /*gbc.fill = GridBagConstraints.HORIZONTAL;   
@@ -383,6 +545,8 @@ public final class UI extends JFrame {
         Object[] columns = {"Staff ID", "Name", "Assigned School Code", "Hourly Salary", "Working Hour", "Salary", "Bonus", "MPF", "Total Salary", "Month"};
         model.setColumnIdentifiers(columns);
         table.setModel(model);
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
+        table.setRowSorter(sorter);
         JScrollPane pane = new JScrollPane(table);
         
         panel.add(pane);
@@ -390,7 +554,7 @@ public final class UI extends JFrame {
         return panel;
     }
     
-    public void clearInput(JTextField[] textfields, JComboBox combobox) {
+    private void clearInput(JTextField[] textfields, JComboBox combobox) {
         for (int i = 0; i < textfields.length; i ++) {
             textfields[i].setText("");
         }
@@ -398,7 +562,7 @@ public final class UI extends JFrame {
         textfields[0].requestFocus();
     }
     
-    public boolean checkInput(JTextField[] textfield, JComboBox combobox) {
+    private boolean checkInput(JTextField[] textfield, JComboBox combobox) {
         for (int i = 0; i < textfield.length; i++) {
             if (!textfield[i].getText().isEmpty()) {
                 if (combobox.getSelectedIndex() != 0) {
@@ -409,25 +573,25 @@ public final class UI extends JFrame {
         return false;
     }
     
-    public void showEmployeeInfo(ArrayList<Employee> employees, DefaultTableModel model) {
-            char type = employees.get(employees.size() - 1).getStaffID().toUpperCase().charAt(0);
-            switch (type) {
-                case 'T':
-                    Tutor tutor = (Tutor) employees.get(employees.size() - 1);
+    private void showEmployeeInfo(ArrayList<Employee> employees, DefaultTableModel model) {
+        char type = employees.get(employees.size() - 1).getStaffID().toUpperCase().charAt(0);
+        switch (type) {
+            case 'T':
+                Tutor tutor = (Tutor) employees.get(employees.size() - 1);
                     
-                    Object [] tutorData = {tutor.getStaffID(), tutor.getName(), tutor.getSchoolCode(), Double.toString(tutor.gethSalary()), Integer.toString(tutor.getWorkHour()), Double.toString(tutor.getSalary()), Double.toString(tutor.getBonus()), "N/A", Double.toString(tutor.getTotalSalary()), tutor.getMonth()};
-                    model.addRow(tutorData);
+                Object [] tutorData = {tutor.getStaffID(), tutor.getName(), tutor.getSchoolCode(), Double.toString(tutor.gethSalary()), Integer.toString(tutor.getWorkHour()), Double.toString(tutor.getSalary()), Double.toString(tutor.getBonus()), "N/A", Double.toString(tutor.getTotalSalary()), tutor.getMonth()};
+                model.addRow(tutorData);
                     
-                    break;
-                case 'C':
-                    Coordinator coordinator = (Coordinator) employees.get(employees.size() - 1);
-                    
-                    Object [] coordinatorData = {coordinator.getStaffID(), coordinator.getName(), coordinator.getSchoolCode(), Double.toString(coordinator.gethSalary()), Integer.toString(coordinator.getWorkHour()), Double.toString(coordinator.getSalary()), "N/A", Double.toString(coordinator.getMPF()), Double.toString(coordinator.getTotalSalary()), coordinator.getMonth()};
-                    model.addRow(coordinatorData);
-          
-                    break;
-                default:
-                    break;
+                break;
+            case 'C':
+                Coordinator coordinator = (Coordinator) employees.get(employees.size() - 1);
+                
+                Object [] coordinatorData = {coordinator.getStaffID(), coordinator.getName(), coordinator.getSchoolCode(), Double.toString(coordinator.gethSalary()), Integer.toString(coordinator.getWorkHour()), Double.toString(coordinator.getSalary()), "N/A", Double.toString(coordinator.getMPF()), Double.toString(coordinator.getTotalSalary()), coordinator.getMonth()};
+                model.addRow(coordinatorData);
+                
+                break;
+            default:
+                break;
             }
     }
 }
