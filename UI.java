@@ -6,6 +6,8 @@ import javax.swing.table.DefaultTableModel;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -17,7 +19,7 @@ public final class UI extends JFrame {
     //Constructor for constructing the user interface objects
     public UI() {
         //Initiating the frame
-        setSize(1000, 500);
+        setSize(750, 550);
         setTitle("INT2014 Assignment");
         
         setIconImage(new ImageIcon(getClass().getResource("icon.png")).getImage());
@@ -25,11 +27,13 @@ public final class UI extends JFrame {
         
         add(new JLabel("HR System of After-School Tutorial Class", JLabel.CENTER));
         
+        setLayout(new FlowLayout());
         
         //A panel storing the two main contents panel
-        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
-        JPanel rPanel = new JPanel();
+        JPanel contentPanel = new JPanel(new FlowLayout());
+        JPanel rPanel = new JPanel(new GridBagLayout());
         
+        //Create a non-editable JTable
         DefaultTableModel model = new DefaultTableModel();
         JTable table = new JTable(){
             public boolean isCellEditable(int row, int col) {
@@ -37,9 +41,11 @@ public final class UI extends JFrame {
             }
         };
         
+        table.setRowHeight(20);
+        
         rPanel = createRightPanel(rPanel, model, table);
         
-        JPanel lPanel = new JPanel(new GridLayout(12, 2));
+        JPanel lPanel = new JPanel(new GridLayout(12, 1));
         lPanel = createLeftPanel(lPanel, model, table);
         
         
@@ -49,40 +55,26 @@ public final class UI extends JFrame {
         
         add(contentPanel);
         
-        //GridBagConstraints gbc = new GridBagConstraints();
-        
-        /*gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridheight = 2;
-        add(new JLabel("HR System of After-School Tutorial Class", JLabel.CENTER), gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        JPanel lPanel = new JPanel(new GridLayout(11, 2));
-        lPanel = createLeftPanel(lPanel);
-        add(lPanel, gbc);
-        
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        JPanel rPanel = new JPanel(new GridBagLayout());
-        lPanel = createRightPanel(rPanel);
-        add(rPanel, gbc);*/
-        
     }
     
     //Method for creating the left panel
     private JPanel createLeftPanel(JPanel panel, DefaultTableModel model, JTable table) {
-        //
-        JLabel labels[] = new JLabel[10];
-        String [] labelNames = {"Staff ID", "Name", "Assigned School Code", "Hourly Salary", 
-                            "Working Hour", "Salary", "Bonus", "MPF", "Total Salary", "Month"};
+        //Create panels for grouping each label and textfied
+        JPanel panels[] = new JPanel[12];
         
+        //Initialize labels
+        JLabel labels[] = new JLabel[10];
+        String [] labelNames = {"Staff ID: ", "Name: ", "Assigned School Code: ", "Hourly Salary: ", 
+                            "Working Hour: ", "Salary: ", "Bonus: ", "MPF: ", "Total Salary: ", "Month: "};
+        
+        //Initialize textfields
         JTextField textfields[] = new JTextField[9];
         
+        //Initialize buttons
         JButton buttons[] = new JButton[4];
         String [] buttonNames = {"Add", "Delete", "Save", "Load"};
         
+        //Initialize the combo box
         final DefaultComboBoxModel months = new DefaultComboBoxModel();
         String [] monthsName = {"", "January", "Feburary", "March", "April", 
                                         "May", "June", "July", "August", 
@@ -94,11 +86,12 @@ public final class UI extends JFrame {
         
         final JComboBox monthComboBox = new JComboBox(months);
         
+        //Create objects for labels and textfields
         for (int i = 0; i < labelNames.length; i++) {
             labels[i] = new JLabel(labelNames[i]);
             
             if (i <= 8) {
-                textfields[i] = new JTextField(5);
+                textfields[i] = new JTextField(8);
                 
                 if (i <= 2) {
                     textfields[i].addFocusListener(new textFieldFocusListener(labels[i]));
@@ -117,16 +110,21 @@ public final class UI extends JFrame {
         textfields[6].setText("0");
         textfields[7].setText("0");
         
+        //Add the GUI objects into the panels
         for (int i = 0; i < labelNames.length; i++) {
-            panel.add(labels[i]);
+            panels[i] = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             
             if (i <= 8) {
-                panel.add(textfields[i]);
+                panels[i].add(labels[i]);
+                panels[i].add(textfields[i]);
             } else {
-                panel.add(monthComboBox);
+                panels[i].add(labels[i]);
+                panels[i].add(monthComboBox);
             }
+            panel.add(panels[i]);
         }
         
+        //Create objects and assign listners to the buttons
         for (int i = 0; i < buttonNames.length; i++) {
             buttons[i] = new JButton(buttonNames[i]);
             
@@ -173,11 +171,19 @@ public final class UI extends JFrame {
                             if(i >= 0){
                                 model.removeRow(i);
                                 employee.remove(i);
-                            } else{
+                                
+                                System.out.print(i);
+                                for (int j = 0; j < employee.size(); j++) {
+                                    System.out.println(" " + (j+1) +  ": " + employee.get(j));
+                                }
+                            } else {
                                 JOptionPane.showMessageDialog(panel, "No data is selected");
                             }
                         }
                     });
+                    panels[10] = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                    panels[10].add(buttons[i-1]);
+                    panels[10].add(buttons[i]);
                     break;
                 case 2:
                     buttons[i].addActionListener(new ActionListener() {
@@ -319,14 +325,21 @@ public final class UI extends JFrame {
                             }
                         }
                     });
-                break;
+                    panels[11] = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                    panels[11].add(buttons[i-1]);
+                    panels[11].add(buttons[i]);
+                    break;
+                
             }
-            
-            panel.add(buttons[i]);
         }
+        
+        panel.add(panels[10]);
+        panel.add(panels[11]);
+        
         return panel;
     }
     
+    //Focus listner for normal TextFields
     class textFieldFocusListener implements FocusListener {
         private final JLabel label;
         
@@ -341,6 +354,7 @@ public final class UI extends JFrame {
         }
     }
     
+    //Specific focus listener for the staff TextField
     class staffIDFocusListener implements FocusListener {
         private final JLabel staffIDLabel;
         private final JTextField staffIDTextField;
@@ -399,6 +413,7 @@ public final class UI extends JFrame {
         }
     }
     
+    //Specific listener for calculating mpf, bonus and salary
     class salaryFocusListener implements FocusListener {
         private final JLabel currentLabel;
         private final JTextField currentTextField;
@@ -432,6 +447,7 @@ public final class UI extends JFrame {
         }
         public void focusLost(FocusEvent e) {
             if (!staffIDTextField.getText().isEmpty()) {
+                
                 char type = staffIDTextField.getText().toUpperCase().charAt(0);
                 switch (type) {
                     case 'T':
@@ -443,16 +459,15 @@ public final class UI extends JFrame {
                                 int working = 0;
 
                                 switch (currentLabel.getText()) {
-                                    case "Hourly Salary":
+                                    case "Hourly Salary: ":
                                         hour = Integer.parseInt(currentTextField.getText());
                                         working = Integer.parseInt(otherTextField.getText());
                                         break;
-                                    case "Working Hour":
+                                    case "Working Hour: ":
                                         hour = Integer.parseInt(otherTextField.getText());
                                         working = Integer.parseInt(currentTextField.getText());
                                 }
-
-
+                                
                                 double salary = hour * working;
 
                                 salaryTextField.setText(Double.toString(salary));
@@ -483,11 +498,11 @@ public final class UI extends JFrame {
                                 int working = 0;
 
                                 switch (currentLabel.getText()) {
-                                    case "Hourly Salary":
+                                    case "Hourly Salary: ":
                                         hour = Integer.parseInt(currentTextField.getText());
                                         working = Integer.parseInt(otherTextField.getText());
                                         break;
-                                    case "Working Hour":
+                                    case "Working Hour: ":
                                         hour = Integer.parseInt(otherTextField.getText());
                                         working = Integer.parseInt(currentTextField.getText());
                                 }
@@ -521,39 +536,71 @@ public final class UI extends JFrame {
     
     //Method for creating the right panel
     private JPanel createRightPanel(JPanel panel, DefaultTableModel model, JTable table) {
-        
-        /*GridBagConstraints gbc = new GridBagConstraints();
-        /*gbc.fill = GridBagConstraints.HORIZONTAL;   
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(new JButton("Sort by School Code"), gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        panel.add(new JButton("Sort by Month"), gbc);
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        panel.add(new JButton("Sort by Total"), gbc);
-        gbc.gridx = 3;
-        gbc.gridy = 0;
-        panel.add(new JButton("Sort by Staff ID"), gbc);
-        
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        //gbc.gridwidth = 4;
-        //gbc.gridheight = 13;
         gbc.gridx = 0;
-        gbc.gridy = 0;*/
+        gbc.gridy = 0;
+        
+        JPanel panels [] = new JPanel[2];
+        
+        panels[0] = new JPanel(new FlowLayout());
+        
+        //Initialize the table
         Object[] columns = {"Staff ID", "Name", "Assigned School Code", "Hourly Salary", "Working Hour", "Salary", "Bonus", "MPF", "Total Salary", "Month"};
         model.setColumnIdentifiers(columns);
         table.setModel(model);
         TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
         table.setRowSorter(sorter);
-        JScrollPane pane = new JScrollPane(table);
         
-        panel.add(pane);
+        panels[0].add(new JScrollPane(table));
+        
+        panels[1] = new JPanel(new FlowLayout());
+        
+        JTextField searchTextField = new JTextField(20);
+        
+        //The textfield for searching function
+        searchTextField.getDocument().addDocumentListener(new DocumentListener(){
+
+            public void insertUpdate(DocumentEvent e) {
+                String text = searchTextField.getText();
+
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                String text = searchTextField.getText();
+
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                throw new UnsupportedOperationException("Exception.");
+            }
+
+        });
+        
+        panels[1].add(new JLabel("Search: "));
+        panels[1].add(searchTextField);
+        
+        panel.add(panels[0], gbc);
+        
+        
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(panels[1], gbc);
         
         return panel;
     }
     
+    //Method for clearing all input after successfully adding a object
     private void clearInput(JTextField[] textfields, JComboBox combobox) {
         for (int i = 0; i < textfields.length; i ++) {
             textfields[i].setText("");
@@ -562,6 +609,7 @@ public final class UI extends JFrame {
         textfields[0].requestFocus();
     }
     
+    //Method for checking whether all the input is not empty
     private boolean checkInput(JTextField[] textfield, JComboBox combobox) {
         for (int i = 0; i < textfield.length; i++) {
             if (!textfield[i].getText().isEmpty()) {
@@ -573,6 +621,7 @@ public final class UI extends JFrame {
         return false;
     }
     
+    //Method for adding the employees' information to the table after the employees' object is/are created
     private void showEmployeeInfo(ArrayList<Employee> employees, DefaultTableModel model) {
         char type = employees.get(employees.size() - 1).getStaffID().toUpperCase().charAt(0);
         switch (type) {
