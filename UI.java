@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -19,13 +20,18 @@ public final class UI extends JFrame {
     //Constructor for constructing the user interface objects
     public UI() {
         //Initiating the frame
-        setSize(750, 550);
+        setSize(1300, 550);
         setTitle("INT2014 Assignment");
+        setResizable(false);
         
         setIconImage(new ImageIcon(getClass().getResource("icon.png")).getImage());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        add(new JLabel("HR System of After-School Tutorial Class", JLabel.CENTER));
+        JLabel title = new JLabel("HR System of After-School Tutorial Class", JLabel.CENTER);
+        title.setFont(new Font("Serif", Font.BOLD, 30));
+        
+        
+        add(title);
         
         setLayout(new FlowLayout());
         
@@ -64,7 +70,7 @@ public final class UI extends JFrame {
         
         //Initialize labels
         JLabel labels[] = new JLabel[10];
-        String [] labelNames = {"Staff ID: ", "Name: ", "Assigned School Code: ", "Hourly Salary: ", 
+        String [] labelNames = {"Staff ID: ", "Name: ", "School Code: ", "Hourly Salary: ", 
                             "Working Hour: ", "Salary: ", "Bonus: ", "MPF: ", "Total Salary: ", "Month: "};
         
         //Initialize textfields
@@ -150,7 +156,7 @@ public final class UI extends JFrame {
                                                Double.parseDouble(textfields[3].getText()), Integer.parseInt(textfields[4].getText()), Double.parseDouble(textfields[5].getText()), 
                                                 Double.parseDouble(textfields[8].getText()), String.valueOf(monthComboBox.getSelectedItem()),
                                                 Double.parseDouble(textfields[6].getText())));
-                                                JOptionPane.showMessageDialog(panel, "Added Teacher");
+                                                JOptionPane.showMessageDialog(panel, "Added Tutor");
                                                 showEmployeeInfo(employee, model);
                                                 clearInput(textfields, monthComboBox);
                                             break;
@@ -546,13 +552,25 @@ public final class UI extends JFrame {
         panels[0] = new JPanel(new FlowLayout());
         
         //Initialize the table
-        Object[] columns = {"Staff ID", "Name", "Assigned School Code", "Hourly Salary", "Working Hour", "Salary", "Bonus", "MPF", "Total Salary", "Month"};
+        Object[] columns = {"Staff ID", "Name", "School Code", "Hourly Salary", "Working Hour", "Salary", "Bonus", "MPF", "Total Salary", "Month"};
         model.setColumnIdentifiers(columns);
         table.setModel(model);
         TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
         table.setRowSorter(sorter);
         
-        panels[0].add(new JScrollPane(table));
+        table.setRowHeight(30);
+        TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(50);
+        /*for (int i = 0; i < columns.length; i++) {
+            System.out.println(i);
+            columnModel.getColumn(i).setPreferredWidth(50);
+        }*/
+        
+         JScrollPane tableSP = new JScrollPane(table);
+        
+        tableSP.setPreferredSize(new Dimension(1000, 400));
+
+        panels[0].add(tableSP);
         
         panels[1] = new JPanel(new FlowLayout());
         
