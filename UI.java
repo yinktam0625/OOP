@@ -412,7 +412,7 @@ public final class UI extends JFrame {
                         bonusTextField.setText("0");
                         break;
                     default:
-                        JOptionPane.showMessageDialog(panel, "Please input correct staff ID.", "Staff ID problem", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(panel, "Please input correct Staff ID.", "Staff ID problem", JOptionPane.ERROR_MESSAGE);
                         staffIDTextField.requestFocus();
                 }
             }
@@ -447,7 +447,7 @@ public final class UI extends JFrame {
         public void focusGained(FocusEvent e) {
             currentLabel.setForeground(Color.red);
             if (staffIDTextField.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Please input the Staff ID fitst", "Empty Staff ID", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(panel, "Please input the Staff ID first", "Empty Staff ID", JOptionPane.ERROR_MESSAGE);
                 staffIDTextField.requestFocus();
             }
         }
