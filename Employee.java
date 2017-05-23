@@ -11,7 +11,7 @@ public class Employee{
     
     public Employee(String staffID, String name, String schoolCode, double hSalary, int workHour, double salary, double totalSalary, String month) {
         this.staffID = staffID;
-        this.name    = name;
+        this.name = name;
         this.schoolCode = schoolCode;
         this.hSalary  = hSalary;
         this.workHour = workHour;

@@ -20,8 +20,8 @@ public final class UI extends JFrame {
     //Constructor for constructing the user interface objects
     public UI() {
         //Initiating the frame
-        setSize(1300, 550);
-        setTitle("INT2014 Assignment");
+        setSize(1200, 550);
+        setTitle("INT2014 Project - HR System of after school tutorial class");
         setResizable(false);
         
         setIconImage(new ImageIcon(getClass().getResource("icon.png")).getImage());
