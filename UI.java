@@ -4,8 +4,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -266,7 +264,7 @@ public final class UI extends JFrame {
                                             }
                                         }
                                     } catch (FileNotFoundException ex) {
-                                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                                        //Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                                         JOptionPane.showMessageDialog(panel, ex, "Error", JOptionPane.ERROR_MESSAGE);
                                     } catch (IOException ex) {
                                         JOptionPane.showMessageDialog(panel, ex, "Error", JOptionPane.ERROR_MESSAGE);
@@ -322,11 +320,10 @@ public final class UI extends JFrame {
                                         
                                         line = reader.readLine();
                                     }
-                                    
                                 } catch (FileNotFoundException ex) {
-                                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                                    JOptionPane.showMessageDialog(panel, ex, "Error", JOptionPane.ERROR_MESSAGE);
                                 } catch (IOException ex) {
-                                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                                    JOptionPane.showMessageDialog(panel, ex, "Error", JOptionPane.ERROR_MESSAGE);
                                 }
                             }
                         }
@@ -450,90 +447,98 @@ public final class UI extends JFrame {
                 JOptionPane.showMessageDialog(panel, "Please input the Staff ID first", "Empty Staff ID", JOptionPane.ERROR_MESSAGE);
                 staffIDTextField.requestFocus();
             }
+            
         }
         public void focusLost(FocusEvent e) {
             if (!staffIDTextField.getText().isEmpty()) {
-                
-                char type = staffIDTextField.getText().toUpperCase().charAt(0);
-                switch (type) {
-                    case 'T':
-                        try {
-                            currentLabel.setForeground(Color.black);
-                             if (!currentTextField.getText().isEmpty() && !otherTextField.getText().isEmpty()) {
+                if (!currentTextField.getText().isEmpty()) {
+                    if (Integer.parseInt(currentTextField.getText()) <= 0) {
+                     JOptionPane.showMessageDialog(panel, "Please input a positive value", "Value problem", JOptionPane.ERROR_MESSAGE);
+                     currentTextField.setText("");
+                     currentTextField.requestFocus();
+                    } else {
+                        char type = staffIDTextField.getText().toUpperCase().charAt(0);
+                        switch (type) {
+                            case 'T':
+                                try {
+                                    currentLabel.setForeground(Color.black);
+                                     if (!currentTextField.getText().isEmpty() && !otherTextField.getText().isEmpty()) {
 
-                                int hour = 0;
-                                int working = 0;
+                                        int hour = 0;
+                                        int working = 0;
 
-                                switch (currentLabel.getText()) {
-                                    case "Hourly Salary: ":
-                                        hour = Integer.parseInt(currentTextField.getText());
-                                        working = Integer.parseInt(otherTextField.getText());
-                                        break;
-                                    case "Working Hour: ":
-                                        hour = Integer.parseInt(otherTextField.getText());
-                                        working = Integer.parseInt(currentTextField.getText());
+                                        switch (currentLabel.getText()) {
+                                            case "Hourly Salary: ":
+                                                hour = Integer.parseInt(currentTextField.getText());
+                                                working = Integer.parseInt(otherTextField.getText());
+                                                break;
+                                            case "Working Hour: ":
+                                                hour = Integer.parseInt(otherTextField.getText());
+                                                working = Integer.parseInt(currentTextField.getText());
+                                        }
+
+                                        double salary = hour * working;
+
+                                        salaryTextField.setText(Double.toString(salary));
+
+                                        if (working > 10) {
+                                            double bonus = salary * 0.1;
+                                            salary += bonus;
+                                            bonusTextField.setText(Double.toString(bonus));
+                                        } else {
+                                            bonusTextField.setText("0");
+                                        }
+                                        totalSalaryTextField.setText(Double.toString(salary));
+                                    } else if (!currentTextField.getText().isEmpty()) {
+                                        Integer.parseInt(currentTextField.getText());
+                                    }
+                                     mpfTextField.setText("0");
+                                } catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(panel, "Please input number", ex.getMessage(), JOptionPane.ERROR_MESSAGE);
+                                    currentTextField.requestFocus();
                                 }
-                                
-                                double salary = hour * working;
+                                break;
+                            case 'C':
+                                try {
+                                    currentLabel.setForeground(Color.black);
+                                     if (!currentTextField.getText().isEmpty() && !otherTextField.getText().isEmpty()) {
 
-                                salaryTextField.setText(Double.toString(salary));
+                                        int hour = 0;
+                                        int working = 0;
 
-                                if (working > 10) {
-                                    double bonus = salary * 0.1;
-                                    salary += bonus;
-                                    bonusTextField.setText(Double.toString(bonus));
-                                } else {
-                                    bonusTextField.setText("0");
+                                        switch (currentLabel.getText()) {
+                                            case "Hourly Salary: ":
+                                                hour = Integer.parseInt(currentTextField.getText());
+                                                working = Integer.parseInt(otherTextField.getText());
+                                                break;
+                                            case "Working Hour: ":
+                                                hour = Integer.parseInt(otherTextField.getText());
+                                                working = Integer.parseInt(currentTextField.getText());
+                                        }
+
+
+                                        double salary = hour * working;
+
+                                        salaryTextField.setText(Double.toString(salary));
+
+                                        double mpf = salary * 0.05;
+                                        mpfTextField.setText(Double.toString(mpf));
+
+                                        totalSalaryTextField.setText(Double.toString(salary + mpf));
+                                    } else if (!currentTextField.getText().isEmpty()) {
+                                        Integer.parseInt(currentTextField.getText());
+                                    }
+                                     bonusTextField.setText("0");
+                                } catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(panel, "Please input number", ex.getMessage(), JOptionPane.ERROR_MESSAGE);
+                                    currentTextField.requestFocus();
                                 }
-                                totalSalaryTextField.setText(Double.toString(salary));
-                            } else if (!currentTextField.getText().isEmpty()) {
-                                Integer.parseInt(currentTextField.getText());
-                            }
-                             mpfTextField.setText("0");
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(panel, "Please input number", ex.getMessage(), JOptionPane.ERROR_MESSAGE);
-                            currentTextField.requestFocus();
+                                break;
+                            default:
+                                break;
+
                         }
-                        break;
-                    case 'C':
-                        try {
-                            currentLabel.setForeground(Color.black);
-                             if (!currentTextField.getText().isEmpty() && !otherTextField.getText().isEmpty()) {
-
-                                int hour = 0;
-                                int working = 0;
-
-                                switch (currentLabel.getText()) {
-                                    case "Hourly Salary: ":
-                                        hour = Integer.parseInt(currentTextField.getText());
-                                        working = Integer.parseInt(otherTextField.getText());
-                                        break;
-                                    case "Working Hour: ":
-                                        hour = Integer.parseInt(otherTextField.getText());
-                                        working = Integer.parseInt(currentTextField.getText());
-                                }
-
-
-                                double salary = hour * working;
-
-                                salaryTextField.setText(Double.toString(salary));
-
-                                double mpf = salary * 0.05;
-                                mpfTextField.setText(Double.toString(mpf));
-
-                                totalSalaryTextField.setText(Double.toString(salary + mpf));
-                            } else if (!currentTextField.getText().isEmpty()) {
-                                Integer.parseInt(currentTextField.getText());
-                            }
-                             bonusTextField.setText("0");
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(panel, "Please input number", ex.getMessage(), JOptionPane.ERROR_MESSAGE);
-                            currentTextField.requestFocus();
-                        }
-                        break;
-                    default:
-                        break;
-
+                    }
                 }
             }
             currentLabel.setForeground(Color.black);
